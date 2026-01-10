@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TowerAttackVFXController : MonoBehaviour
-{ [Header("Refs")]
-    [SerializeField] private Transform muzzlePoint;
-    [SerializeField] private Transform targetPoint;
-
-    [Header("VFX")]
-    [SerializeField] private ParticleSystem muzzleFlash;
-    [SerializeField] private ParticleSystem projectile;
-    [SerializeField] private ParticleSystem smokeTrail;
+{   
+     [Header("VFX References (assign in Inspector)")]
+    [SerializeField] private ParticleSystem muzzleFlashDirectional;
+    [SerializeField] private ParticleSystem muzzleFlashCore;
+    [SerializeField] private ParticleSystem projectilePs;
 
     [Header("Test")]
     [SerializeField] private KeyCode fireKey = KeyCode.Space;
+    [SerializeField] private bool restartWithClear = true;
+
+    private void Awake()
+    {
+        // Don't auto-play at scene start
+        DisablePlayOnAwake(muzzleFlashDirectional);
+        DisablePlayOnAwake(muzzleFlashCore);
+        DisablePlayOnAwake(projectilePs);
+    }
 
     private void Update()
     {
@@ -23,41 +29,27 @@ public class TowerAttackVFXController : MonoBehaviour
 
     public void Fire()
     {
-        if (muzzlePoint == null) return;
-
-        // Spawn & align
-        SetTransform(muzzleFlash, muzzlePoint);
-        SetTransform(projectile, muzzlePoint);
-        SetTransform(smokeTrail, muzzlePoint);
-
-        // Aim (optional)
-        if (targetPoint != null)
-        {
-            Vector3 dir = (targetPoint.position - muzzlePoint.position);
-            if (dir.sqrMagnitude > 0.0001f)
-            {
-                Quaternion rot = Quaternion.LookRotation(dir.normalized, Vector3.up);
-                if (projectile) projectile.transform.rotation = rot;
-                if (smokeTrail) smokeTrail.transform.rotation = rot;
-            }
-        }
-
-        // Restart particles cleanly
-        Restart(muzzleFlash);
-        Restart(projectile);
-        Restart(smokeTrail);
+        Trigger(muzzleFlashDirectional);
+        Trigger(muzzleFlashCore);
+        Trigger(projectilePs);
     }
 
-    private static void SetTransform(ParticleSystem ps, Transform t)
+    private void Trigger(ParticleSystem ps)
     {
         if (!ps) return;
-        ps.transform.SetPositionAndRotation(t.position, t.rotation);
-    }
 
-    private static void Restart(ParticleSystem ps)
-    {
-        if (!ps) return;
-        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        if (restartWithClear)
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        else
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+
         ps.Play(true);
+    }
+
+    private void DisablePlayOnAwake(ParticleSystem ps)
+    {
+        if (!ps) return;
+        var main = ps.main;
+        main.playOnAwake = false;
     }
 }
