@@ -42,7 +42,6 @@ Case dosyasındaki "Bonus" isterini karşılamak ve görsel kaliteyi artırmak a
     * Shader parametrelerini script ile update etmek yerine, Particle System'ın **Custom Vertex Streams** özelliğini kullandım.
     * Particle'ın `Lifetime` verisini Shader'a stream ederek, halkanın zamanla incelmesini (Thickness fade-out) tamamen GPU tarafında çözdüm.
 
-![Shader Graph Preview](docs/shader_graph.png)
 
 ### B. Projectile Deformation & Trail
 Merminin hız hissini artırmak için Projectile Core kısmında **"Stretched Billboard"** render modunu tercih ettim.
